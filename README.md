@@ -1,7 +1,64 @@
 # AD5940 Examples
-[AD5940/AD5941](https://www.analog.com/en/products/ad5940.html) is the latest high precision impedance and electrochemical front end. It communicates with external MCU via SPI bus. 
+
+[AD5940/AD5941](https://www.analog.com/en/products/ad5940.html) is the latest high precision impedance and electrochemical front end. It communicates with external MCU via SPI bus.
 
 This repository targets to provide rich examples for you to get start with and provide system level examples like EDA(electrodermal activity), BIA(Body Impedance Analysis) which you can use directly in your project.
+
+## 🆕 NEW: FPGA-Based Electrochemical Workstation
+
+This repository now includes a complete **FPGA-based single-channel electrochemical workstation** for sweat detection, featuring:
+
+- ✅ **FPGA SPI Interface** for AD5940 control
+- ✅ **Cyclic Voltammetry (CV)** implementation
+- ✅ **Differential Pulse Voltammetry (DPV)** implementation
+- ✅ **Open Circuit Potentiometry** for ion detection
+- ✅ **Sweat Analysis Module** for glucose, lactate, K+, Na+ detection
+- ✅ **Comprehensive Documentation** in Chinese and English
+
+**👉 See detailed documentation:**
+- [FPGA Workstation Documentation (English)](FPGA_WORKSTATION_EN.md)
+- [FPGA工作站文档（中文）](FPGA_WORKSTATION_CN.md)
+
+### Supported Analytes in Sweat
+
+| Analyte | Range | Method | Location |
+|---------|-------|--------|----------|
+| Glucose | 0-11 mM | Chronoamperometry/DPV | `examples/SweatAnalysis/` |
+| Lactate | 0-25 mM | DPV/CV | `examples/SweatAnalysis/` |
+| K+ Ion | 2-8 mM | Potentiometry | `examples/AD5940_Potentiometry/` |
+| Na+ Ion | 10-90 mM | Potentiometry | `examples/AD5940_Potentiometry/` |
+
+### New Electrochemical Methods
+
+1. **Cyclic Voltammetry (CV)** - `examples/AD5940_CyclicVoltammetry/`
+   - Bidirectional voltage sweep for electrochemical characterization
+   - Configurable scan rate (10-1000 mV/s)
+   - Multi-cycle support for averaging
+
+2. **Differential Pulse Voltammetry (DPV)** - `examples/AD5940_DPV/`
+   - High sensitivity for trace analysis
+   - Pulse amplitude and period configuration
+   - Ideal for lactate and glucose detection
+
+3. **Open Circuit Potentiometry** - `examples/AD5940_Potentiometry/`
+   - Ion-selective electrode (ISE) support
+   - Nernst equation calculation
+   - For K+, Na+, pH measurements
+
+### FPGA Implementation
+
+The `fpga/` directory contains:
+- **SPI Master Controller** (`fpga/rtl/ad5940_spi_master.v`)
+  - Configurable clock frequency (up to 16 MHz)
+  - 16-bit address, 32-bit data support
+
+- **Top-Level Controller** (`fpga/rtl/ad5940_controller.v`)
+  - Command interface for host communication
+  - Multi-method configuration support
+  - Data FIFO management
+  - Interrupt handling
+
+---
 
 # Useful links
 * [AD5940 Wiki](https://wiki.analog.com/resources/eval/user-guides/ad5940)
@@ -28,6 +85,11 @@ The final file structure should be:
 ad5940-examples\doc...
 ad5940-examples\examples\ad5940lib\ad5940.c
 ad5940-examples\examples\ad5940lib\ad5940.h
+ad5940-examples\fpga\rtl\...                    [NEW - FPGA implementation]
+ad5940-examples\examples\AD5940_CyclicVoltammetry\...  [NEW]
+ad5940-examples\examples\AD5940_DPV\...                [NEW]
+ad5940-examples\examples\AD5940_Potentiometry\...      [NEW]
+ad5940-examples\examples\SweatAnalysis\...             [NEW]
 ad5940-examples\LICENSE...
 ad5940-examples\README.md...
 ```
@@ -41,8 +103,8 @@ Be aware if you are using Keil with ADuCM3029 that ADuCM3029 requires the ARM Co
 If you want to use IAR, do not forget to manually install ADuCM3029 Device Support Pack(ADuCM302x_DFP) from IAR CMSIS-Pack-Manager, under tab 'Packs/AnalogDevices.ADuCM302x_DFP'.
 
 ## Hardware
-Currently, there are two kinds of EVB. 
-* [EVAL-AD5940BIOZ](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/EVAL-AD5940BIOZ.html) is used for healthcare application like EDA/BIA/ECG. You can find the related introduction in [Wiki](https://wiki.analog.com/resources/eval/user-guides/eval-ad5940/hardware/eval-ad5940bioz). 
+Currently, there are two kinds of EVB.
+* [EVAL-AD5940BIOZ](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/EVAL-AD5940BIOZ.html) is used for healthcare application like EDA/BIA/ECG. You can find the related introduction in [Wiki](https://wiki.analog.com/resources/eval/user-guides/eval-ad5940/hardware/eval-ad5940bioz).
 ![pic](https://www.analog.com/-/media/analog/en/evaluation-board-images/images/eval-ad5940biozangle-web.gif?h=270&thn=1&hash=C0C6E2638C3E12641F9D79A0121B56AAB7003391)
 * [EVAL-AD5940ELEC](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/EVAL-AD5940ELCZ.html) is used for industrial application like Gas Detection with electrochemical sensor, Water Quality etc. It has on board socket for gas sensor and a BNC connector for PH sensor. The USB connector actually carries the analog signal from AD5940 which allows you to connect any other sensors so you can do either impedance measurement or used as potentiostat circuit. Find more introduction on [Wiki](https://wiki.analog.com/resources/eval/user-guides/eval-ad5940/hardware/eval-ad5940elcz).
 ![pic](https://www.analog.com/-/media/analog/en/evaluation-board-images/images/eval-ad5940elczangle-web.gif?h=270&thn=1&hash=C7A2DE91D5A315F0F4A167EBB83F8ECBE02EC79B)
@@ -56,6 +118,15 @@ For Keil project, follow [this link](https://wiki.analog.com/resources/eval/user
 
 **Note: CMSIS pack is used in all examples, make sure you installed the pack no matter in Keil or IAR.**
 
+## Quick Start for Sweat Detection
+
+For setting up the electrochemical workstation for sweat analysis:
+
+1. **Hardware Setup**: Connect AD5940 evaluation board
+2. **FPGA Option**: Load FPGA bitstream from `fpga/rtl/` (optional)
+3. **MCU Option**: Use existing MCU examples with new methods
+4. **Configure Analyte**: See `examples/SweatAnalysis/SweatAnalysis.h`
+5. **Run Measurement**: Follow examples in `FPGA_WORKSTATION_EN.md`
 
 # License
 Copyright (c) 2017-2019 Analog Devices, Inc. All Rights Reserved.
